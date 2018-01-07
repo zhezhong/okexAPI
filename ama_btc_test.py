@@ -1,4 +1,4 @@
-from ccxt import okcoinusd
+#from ccxt import okcoinusd
 
 from OkcoinFutureAPI import OKCoinFuture
 import logging

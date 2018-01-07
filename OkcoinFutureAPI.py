@@ -10,6 +10,7 @@ import pandas as pd
 import pandas.stats.moments
 import numpy as np
 import sys
+from datetime import datetime
 
 
 class OKCoinFuture:
@@ -145,8 +146,8 @@ class OKCoinFuture:
             params['price'] = price
         params['sign'] = buildMySign(params, self.__secretkey)
         ans = httpPost(self.__url, FUTURE_TRADE, params)
-        f=open('order.log','a')
-        f.write(ans+_type[int(tradeType)] + '   '+str(symbol)+' '+str(contractType)+'  '+ str(amount)+'at'+ str(price)+'  '+str('\n'))
+        f=open(symbol+contractType+'order.log','a')
+        f.write(str(datetime.now())+ans+_type[int(tradeType)] + ' '+str(symbol)+' '+str(contractType)+'  '+ str(amount)+'at'+ str(price)+'\n')
         f.close()
         return ans
             
@@ -163,6 +164,18 @@ class OKCoinFuture:
         }
         params['sign'] = buildMySign(params, self.__secretkey)
         return httpPost(self.__url, FUTURE_BATCH_TRADE, params)
+    
+    # 期货取消所有限价单
+    def close_all_limit_orderbook(self,symbol,contractType):
+        with open(symbol+contractType+'order.log') as f:
+            for line in f:
+                sub =line.find('order_id')
+                if (sub != -1):
+                    order_id = int(line[sub+10:sub+21])
+                    res =self.future_cancel(symbol,contractType,order_id)
+                    #print(res)
+        return 0
+    
 
     # 期货取消订单
     def future_cancel(self, symbol, contractType, orderId):
@@ -284,6 +297,7 @@ class OKCoinFuture:
         first_value = True
 
         for i in range(N):
+            print('-----',sc)
             if sc[i] != sc[i]:
                 answer[i] = np.nan
             else:
