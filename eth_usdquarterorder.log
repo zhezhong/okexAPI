@@ -1,0 +1,6 @@
+{"result":true,"order_id":16912379263}open long eth_usd quarter  500at752.833{"result":true,"order_id":16912544257}open short eth_usd quarter  300at742.01{"result":true,"order_id":16912782438}close short eth_usd quarter  300at745{"result":true,"order_id":16913034017}close long eth_usd quarter  500at752{"result":true,"order_id":16985852487}open short eth_usd quarter  500at752{"result":true,"order_id":16988423278}close short eth_usd quarter  500at760{"result":true,"order_id":16993601813}open long eth_usd quarter  500at792{"result":true,"order_id":17000864831}open long eth_usd quarter  500at792{"result":true,"order_id":17025655952}close long eth_usd quarter  500at782{"result":true,"order_id":17129624077}close long eth_usd quarter  250at802
+{"result":true,"order_id":18314448874}open short eth_usd quarter  1000at1022.782
+{"result":true,"order_id":18315423257}close short eth_usd quarter  1000at1015
+{"result":false,"error_code":20016}close short eth_usd quarter  1000at1015
+2018-01-08 00:40:02.372454{"result":false,"error_code":20007}close long eth_usd quarter  0at1185.846
+2018-01-08 00:40:02.632372{"result":false,"error_code":20007}close short eth_usd quarter  0at1185.846
