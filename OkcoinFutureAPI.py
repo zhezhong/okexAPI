@@ -20,6 +20,18 @@ class OKCoinFuture:
         self.__secretkey = secretkey
 
     # OKCOIN期货行情信息
+    
+    def future_devolve(self,symbol,type='2',amount='0.01'):
+        FUTURE_DEPTH_RESOURCE = "/api/v1/future_devolve.do"
+        params = {
+            'symbol':symbol,
+            'type':type,
+            'amount':amount,
+        }
+        params['api_key'] = self.__apikey
+        params['sign'] = buildMySign(params, self.__secretkey)
+        return httpPost(self.__url, FUTURE_DEPTH_RESOURCE, params)
+
     def future_ticker(self, symbol, contractType):
         FUTURE_TICKER_RESOURCE = "/api/v1/future_ticker.do"
         params = ''
@@ -27,6 +39,7 @@ class OKCoinFuture:
             params += '&symbol=' + symbol if params else 'symbol=' + symbol
         if contractType:
             params += '&contract_type=' + contractType if params else 'contract_type=' + symbol
+        print(params)
         return httpGet(self.__url, FUTURE_TICKER_RESOURCE, params)
 
     # OKCoin期货市场深度信息
@@ -74,6 +87,7 @@ class OKCoinFuture:
 
     # 获取虚拟合约的K线信息
     def future_kline(self, symbol, contractType, type, size=0, since=0):
+        #print(symbol,contractType,type,size)
         FUTURE_USERINFO = "/api/v1/future_kline.do"
         params = ''
         if symbol:
@@ -83,6 +97,7 @@ class OKCoinFuture:
         if type:
             params += '&type=' + type if params else 'type=' + type
         params += '&size=' + str(size) + '&since=' + str(since)
+        #print('-------',params)
         return httpGet(self.__url, FUTURE_USERINFO, params)
 
     # 获取当前可用合约总持仓量
@@ -190,7 +205,7 @@ class OKCoinFuture:
         return httpPost(self.__url, FUTURE_CANCEL, params)
 
     # 期货获取订单信息
-    def future_orderinfo(self, symbol, contractType, orderId, status, currentPage, pageLength):
+    def future_orderinfo(self, symbol, contractType, orderId, status='', currentPage='', pageLength=''):
         FUTURE_ORDERINFO = "/api/v1/future_order_info.do?"
         params = {
             'api_key': self.__apikey,
@@ -203,6 +218,14 @@ class OKCoinFuture:
         }
         params['sign'] = buildMySign(params, self.__secretkey)
         return httpPost(self.__url, FUTURE_ORDERINFO, params)
+    # 所有限价单信息
+    #def get_all_limitorder(self,symbol,contractType):
+    #    with open(symbol+contractType+'order.log') as f:
+    ##           sub =line.find('order_id')
+    #            if (sub != -1):
+    #                order_id = int(line[sub+10:sub+21])
+    #                res =self.(symbol,contractType,order_id)
+     #   
 
     # 期货逐仓账户信息
     def future_userinfo_4fix(self):

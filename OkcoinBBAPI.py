@@ -36,10 +36,11 @@ class OKCoinBibi:
     # use 获取OKCOIN现货市场深度
     def depth(self, symbol='', size=5):
         DEPTH_RESOURCE = "/api/v1/depth.do"
-        params = {
-            'symbol': symbol,
-            'size': size
-        }
+        params=''
+        if symbol:
+            params += '&symbol=' + symbol if params else 'symbol=' + symbol
+        if size:
+            params += '&size=' + size if params else 'size=' + size
         return httpGet(self.__url, DEPTH_RESOURCE, params)
 
     # use获取OKCOIN现货历史交易信息
