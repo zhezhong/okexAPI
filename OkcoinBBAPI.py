@@ -52,7 +52,7 @@ class OKCoinBibi:
         return httpGet(self.__url, TRADES_RESOURCE, params)
 
     # use 获取货币合约K线信息
-    def kline(self, symbol, contractType, type, size=0, since=0):
+    def kline(self, symbol, type, size=0, since=0):
         # print(symbol,contractType,type,size)
         FUTURE_USERINFO = "/api/v1/kline.do"
         params = {
@@ -61,6 +61,16 @@ class OKCoinBibi:
             'size':size,
             'since':since,
         }
+        params=''
+        if symbol:
+            params += '&symbol=' + symbol if params else 'symbol=' + symbol
+        if type:
+            params += '&type=' + type if params else 'type=' + type
+        if size:
+            params += '&size=' + size if params else 'size=' + size
+        if since:
+            params += '&since=' + since if params else 'since=' + since
+        
         # print('-------',params)
         return httpGet(self.__url, FUTURE_USERINFO, params)
 
@@ -70,7 +80,7 @@ class OKCoinBibi:
         params = {}
         params['api_key'] = self.__apikey
         params['sign'] = buildMySign(params, self.__secretkey)
-        print(params)
+        #print(params)
         return httpPost(self.__url, USERINFO_RESOURCE, params)
 
     # use币币交易交易
@@ -153,6 +163,26 @@ class OKCoinBibi:
         }
         params['sign'] = buildMySign(params, self.__secretkey)
         return httpPost(self.__url, ORDER_HISTORY_RESOURCE, params)
+    
+    # use 期货
+    def close_all_limit_orderbook(self,symbol):
+        with open(symbol+'order.log') as f:
+            for line in f:
+                sub =line.find('order_id')
+                if (sub != -1):
+                    order_id = int(line[sub+10:sub+21])
+                    res =self.cancel(symbol,order_id)
+                    #print(res)
+        return 0
+    # kline price to df
+    def price_to_df(symbol,frequency,count):
+        price = context.future_kline(symbol,frequency,count)
+        df = pd.DataFrame(columns  = ['timestamp','open','high','low','close','volume','coin_amount'])
+        i=0
+        for k in price:
+            df.loc[i,:]=k
+            i = i+1
+        return df
 
 
 
