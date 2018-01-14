@@ -70,10 +70,11 @@ class OKCoinBibi:
         params = {}
         params['api_key'] = self.__apikey
         params['sign'] = buildMySign(params, self.__secretkey)
+        print(params)
         return httpPost(self.__url, USERINFO_RESOURCE, params)
 
     # use币币交易交易
-    def trade(self, symbol, tradeType, price='', amount=''):
+    def trade(self, symbol, tradeType, price, amount):
         TRADE_RESOURCE = "/api/v1/trade.do"
         params = {
             'api_key': self.__apikey,
@@ -86,8 +87,13 @@ class OKCoinBibi:
             params['amount'] = amount
 
         params['sign'] = buildMySign(params, self.__secretkey)
-        return httpPost(self.__url, TRADE_RESOURCE, params)
-
+        ans=httpPost(self.__url, TRADE_RESOURCE, params)
+        #print(params)
+        f=open(symbol+'order.log','a')
+        f.write(str(datetime.now())+ans+'\n')
+               #+_type[int(tradeType)] + ' '+str(symbol)+' '+str(contractType)+'  '+ str(amount)+'at'+ str(price)+'\n')
+        f.close()
+        return ans
     # 现货批量下单
     def batchTrade(self, symbol, tradeType, orders_data):
         BATCH_TRADE_RESOURCE = "/api/v1/batch_trade.do"
