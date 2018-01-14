@@ -6,6 +6,7 @@ import logging
 import time
 import json
 import os
+import shutil
 import pandas as pd
 import pandas.stats.moments
 import numpy as np
@@ -151,6 +152,7 @@ class OKCoinBibi:
         params['sign'] = buildMySign(params, self.__secretkey)
         return httpPost(self.__url, ORDERS_INFO_RESOURCE, params)
 
+    
     # 现货获得历史订单信息
     def orderHistory(self, symbol, status, currentPage, pageLength):
         ORDER_HISTORY_RESOURCE = "/api/v1/order_history.do"
@@ -164,25 +166,54 @@ class OKCoinBibi:
         params['sign'] = buildMySign(params, self.__secretkey)
         return httpPost(self.__url, ORDER_HISTORY_RESOURCE, params)
     
-    # use 期货
     def close_all_limit_orderbook(self,symbol):
+        shutil.copyfile(symbol+'order.log',symbol+'order.log.bak')
         with open(symbol+'order.log') as f:
             for line in f:
                 sub =line.find('order_id')
                 if (sub != -1):
-                    order_id = int(line[sub+10:sub+21])
-                    res =self.cancel(symbol,order_id)
-                    #print(res)
+                    order_id = int(line[sub+10:sub+16])
+                    res =self.cancelOrder(symbol,order_id)
+        os.remove(symbol+'order.log')
+        #print(res)
         return 0
-    # kline price to df
-    def price_to_df(symbol,frequency,count):
-        price = context.future_kline(symbol,frequency,count)
-        df = pd.DataFrame(columns  = ['timestamp','open','high','low','close','volume','coin_amount'])
+    #close_all_limit_orderbook('wrc_eth')
+    #close_all_limit_orderbook('wrc_btc')
+    #kline price to df
+    def price_to_df(self,symbol,frequency,count):
+        price = self.kline(symbol,frequency,count)
+        df = pd.DataFrame(columns  = ['timestamp','open','high','low','close','volume'])
         i=0
         for k in price:
             df.loc[i,:]=k
             i = i+1
         return df
+    # actually if you canceled all orderbook,them you can delete this orderbook file ,so this function  is note
+    # nesscary ,and you should keep a bak before you cancel in case interrupte this order book file.
+    def clean_order_cache(symbol_list):
+        for _symbol in symbol_list:
+            #shutil.copyfile(_symbol+'order.log.bak',_symbol+'order.log')
+            shutil.copyfile(_symbol+'order.log',_symbol+'order.log.bak')
+            sleep(0.2)
+            count=0
+            with open(_symbol+'order.log.bak') as f:
+                for line in f:
+                    sub = line.find('order_id')
+                    try:
+                        if (sub != -1):
+                            order_id = int(line[sub+10:sub+16])
+                            res =json.loads(bibi.orderinfo(symbol,order_id))
+                            order_info = res['orders'][0]
+                            if(order_info['status']>-1 and order_info['status']<2):
+                                f=open(_symbol+'_order_cache.log','a')
+                                f.write(str(line))
+                                f.close()
+                            count = count+1
+                    except:
+                        pass
+        os.remove(_symbol+'order.log')
+        return count
+#clean_order_cache(symbol_list=['wrc_btc'])
 
 
 
