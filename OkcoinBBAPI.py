@@ -101,8 +101,8 @@ class OKCoinBibi:
         ans=httpPost(self.__url, TRADE_RESOURCE, params)
         #print(params)
         f=open(symbol+'order.log','a')
-        f.write(str(datetime.now())+ans+'\n')
-               #+_type[int(tradeType)] + ' '+str(symbol)+' '+str(contractType)+'  '+ str(amount)+'at'+ str(price)+'\n')
+        f.write(str(datetime.now())+str(ans)+'__'+symbol+'__'+tradeType+'__'+str(price)+'__'+str(amount)+'\n')
+        #+_type[int(tradeType)] + ' '+str(symbol)+' '+str(contractType)+'  '+ str(amount)+'at'+ str(price)+'\n')
         f.close()
         return ans
     # 现货批量下单
@@ -167,13 +167,23 @@ class OKCoinBibi:
         return httpPost(self.__url, ORDER_HISTORY_RESOURCE, params)
     
     def close_all_limit_orderbook(self,symbol):
-        shutil.copyfile(symbol+'order.log',symbol+'order.log.bak')
+        if(os.path.exists(symbol+'order.log')):
+            shutil.copyfile(symbol+'order.log',symbol+'order.log.bak')
+        else:
+            shutil.copyfile(symbol+'order.log.bak',symbol+'order.log')
+            shutil.copyfile(symbol+'order.log',symbol+'order.log.bak')
+           
+        
+           
         with open(symbol+'order.log') as f:
             for line in f:
                 sub =line.find('order_id')
                 if (sub != -1):
                     order_id = int(line[sub+10:sub+16])
                     res =self.cancelOrder(symbol,order_id)
+                    f=open(symbol+'_order.log.bak','a')
+                    f.write(str(line))
+                    f.close()
         os.remove(symbol+'order.log')
         #print(res)
         return 0
